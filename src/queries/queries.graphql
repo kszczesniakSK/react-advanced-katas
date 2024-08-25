@@ -1,0 +1,63 @@
+#  Create example CRUD (create, read, update, delete) app using GraphQL
+#  Use a Fragment to simplify queries and mutations
+#  Use an Alias in a query
+#  Fetch parts of query conditionally using @include and @skip directives
+
+
+fragment PostFields on Post {
+  id
+  title
+  views
+  User {
+    id
+    name
+  }
+}
+
+# Create Post Mutation
+mutation CreatePost($title: String!, $user_id: ID!, $views: Int!) {
+  createPost(title: $title, user_id: $user_id, views: $views) {
+    ...PostFields
+  }
+}
+
+# Get All Posts Query
+query GetAllPosts {
+  allPosts {
+    ...PostFields
+  }
+}
+
+
+query GetPostsWithAliasAndCondition($includeViews: Boolean!, $includeUser: Boolean!) {
+  allPosts {
+    postId: id
+    postTitle: title  # Alias for the title field
+    views @include(if: $includeViews)  # Conditionally include views
+    User @include(if: $includeUser) {  # Conditionally include the user
+      userId: id  # Alias for the user ID field
+      userName: name  # Alias for the user name field
+    }
+  }
+}
+
+# Get Post By ID Query
+query GetPostById($id: ID!) {
+  Post(id: $id) {
+    ...PostFields
+  }
+}
+
+# Update Post Mutation
+mutation UpdatePost($id: ID!, $title: String!, $user_id: ID!, $views: Int!) {
+  updatePost(id: $id, title: $title, user_id: $user_id, views: $views) {
+    ...PostFields
+  }
+}
+
+# Delete Post Mutation
+mutation DeletePost($id: ID!) {
+  removePost(id: $id) {
+    ...PostFields
+  }
+}
